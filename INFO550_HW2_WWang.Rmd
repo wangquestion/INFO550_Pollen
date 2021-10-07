@@ -19,9 +19,11 @@ library(dplyr)
 ### Data preparation
 ##### Set working directory:
 
+This process is not nessessary when you stored the csv file with in the current directory.
+
 ```{r}
-dir <- paste('/Users/wenhao/Desktop/INFO550/HW2/')
-setwd(dir)
+##dir <- paste('/Users/wenhao/Desktop/INFO550/HW2/')
+##setwd(dir)
 ```
 
 ##### Load the pollen sense raw measurement data:
