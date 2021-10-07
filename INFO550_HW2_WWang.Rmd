@@ -1,0 +1,63 @@
+---
+title: "Pollen time series plot"
+subtitle: "INFO 550 HW2"
+author: "Wenhao Wang"
+date: "`r format(Sys.Date(),'%Y-%m-%d')`"
+output: html_document
+---
+
+### Introduction 
+
+This script helps to creat a time-series plot on the pollen sense measured total pollen count in particular device (87081 in this script). The script first clean the data selecting valid measurement. Before applied the code in this script, please make sure to storage the original raw pollen data in the working directory. In the sample script, the working directory was set as '/Users/wenhao/Desktop/INFO550/HW2/'. You need following packages to run this code: **ggplot2**,**dplyr**,**stringr**
+  
+```{r,echo=F,include=F}
+library(ggplot2)
+library(stringr)
+library(dplyr)
+```
+
+### Data preparation
+##### Set working directory:
+
+```{r}
+dir <- paste('/Users/wenhao/Desktop/INFO550/HW2/')
+setwd(dir)
+```
+
+##### Load the pollen sense raw measurement data:
+
+```{r}
+RAW.87081 <- read.csv('PS_Pollen_2020_1device_87081.csv')
+```                  
+
+##### Clean the dataset by following rules:
+
+1. Select the measurement result only if the Probabiliy is larger than 0.8
+
+2. Summarise the dataset by counting the total pollen count of each species in one calendar day 
+
+```{r}
+RAW.87081.clean <- RAW.87081[RAW.87081$Probability>0.8,]
+daily.87081 <- group_by(RAW.87081.clean,Day) %>% summarise (.,Count=n())
+```
+
+#### Creat a time-series plot on the daily pollen count
+
+```{r,make-a-plt}
+daily.87081$Day <- as.Date(daily.87081$Day)
+p <- ggplot(data=daily.87081,aes(x=Day,y=Count))+geom_line()
+p + ylab("Daily Pollen Count") + theme_set(theme_bw()) + theme(panel.grid.major=element_line(colour=NA))
+```
+
+```{r,echo=F}
+spring_extreme <- max(daily.87081$Count)
+spring_extreme_day <- daily.87081$Day[daily.87081$Count==spring_extreme]
+
+autumn <- daily.87081[daily.87081$Day>as.Date('2020-08-01',start='1970-01-01'),]
+autumn_extreme <- max(autumn$Count)
+autumn_extreme_day <- autumn$Day[autumn$Count==autumn_extreme]
+```
+
+We measured the peak of pollen count during the spring season, while we observe highest value of `r spring_extreme` on `r spring_extreme_day`. There is also a peak pollen count of `r autumn_extreme` during September, while the highest day in autumn lay on `r autumn_extreme_day`.
+
+
